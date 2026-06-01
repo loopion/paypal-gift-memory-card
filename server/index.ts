@@ -21,7 +21,7 @@ if (!isDev) {
   // In production, serve the Vite-built frontend from dist/
   const distDir = path.join(__dirname, '../../dist');
   app.use(express.static(distDir));
-  app.get('*', (_req, res) => {
+  app.get('/{*path}', (_req, res) => {
     res.sendFile(path.join(distDir, 'index.html'));
   });
 }
