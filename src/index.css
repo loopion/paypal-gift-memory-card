@@ -6,12 +6,19 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: 'Geist Sans', 'GeistSans', system-ui, -apple-system, sans-serif;
+  background: #ffffff;
+  color: #09090B;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
   height: 100dvh;
   display: flex;
   flex-direction: column;
+}
+
+.font-display {
+  font-family: 'Plus Jakarta Sans', 'PlusJakartaSans', system-ui, sans-serif;
 }

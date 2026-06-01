@@ -30,5 +30,11 @@ src/data/transactions.json
 .env.local
 .env.*.local
 
+# Server build output
+server/dist/
+
 # OMC runtime state
 .omc/
+
+# Local spec/reference archives
+*.zip
