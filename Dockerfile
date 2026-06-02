@@ -1,5 +1,5 @@
 # ── Stage 1: build ────────────────────────────────────────────────────────────
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 
 # Install dependencies (all, including devDeps needed for build)
@@ -16,7 +16,7 @@ RUN npm run build
 RUN npm run build:server
 
 # ── Stage 2: production ────────────────────────────────────────────────────────
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 WORKDIR /app
 
 ENV NODE_ENV=production
