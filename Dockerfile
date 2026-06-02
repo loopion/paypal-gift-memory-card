@@ -2,6 +2,8 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+
 # Install dependencies (all, including devDeps needed for build)
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -19,7 +21,8 @@ RUN npm run build:server
 FROM node:22-alpine AS production
 WORKDIR /app
 
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    NPM_CONFIG_UPDATE_NOTIFIER=false
 
 # Install production dependencies only
 COPY package.json package-lock.json ./
