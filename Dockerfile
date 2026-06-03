@@ -1,31 +1,20 @@
-# syntax=docker/dockerfile:1
 # ── Stage 1: build ────────────────────────────────────────────────────────────
-FROM node:22-alpine AS builder
+# Debian (glibc), NOT alpine (musl): native deps such as rolldown (Vite 8's
+# bundler) ship broken/missing prebuilt binaries for the amd64+musl combo, which
+# crashed `npm ci` ("Exit handler never called!") on every amd64 host. glibc has
+# first-class native-binary support. Full image (not -slim) so node-gyp has a
+# toolchain if any package needs to compile.
+FROM node:22-bookworm AS builder
 WORKDIR /app
 
-# Headless-friendly npm: no update-notifier / audit / fund network chatter.
 ENV NPM_CONFIG_UPDATE_NOTIFIER=false \
     NPM_CONFIG_FUND=false \
     NPM_CONFIG_AUDIT=false \
-    NPM_CONFIG_PROGRESS=false \
     CI=true
 
+# Single install; the production stage reuses these modules.
 COPY package.json package-lock.json ./
-
-# Single, memory-frugal, network-resilient install. This is the ONLY `npm ci`.
-# - maxsockets=1: extract one tarball at a time → lowest possible peak memory
-#   (the "Exit handler never called!" crash is npm being OOM-killed during the
-#   concurrent reify phase on a busy build host).
-# - generous fetch timeouts/retries: survive a slow/stalled registry.
-# - cache mount: persist ~/.npm across builds so retries resume instead of
-#   re-downloading everything.
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci --no-audit --no-fund \
-      --maxsockets=1 \
-      --fetch-timeout=600000 \
-      --fetch-retries=5 \
-      --fetch-retry-mintimeout=20000 \
-      --fetch-retry-maxtimeout=120000
+RUN npm ci --no-audit --no-fund
 
 # Copy source and build
 COPY . .
@@ -36,7 +25,7 @@ RUN npm run build:server   # Express server → server/dist/
 RUN npm prune --omit=dev
 
 # ── Stage 2: production ────────────────────────────────────────────────────────
-FROM node:22-alpine AS production
+FROM node:22-bookworm-slim AS production
 WORKDIR /app
 
 ENV NODE_ENV=production
